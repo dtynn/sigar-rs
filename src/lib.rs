@@ -11,3 +11,4 @@ pub use result::{Error, SigarResult};
 mod macros;
 
 pub mod cpu;
+pub mod mem;
