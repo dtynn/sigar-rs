@@ -1,4 +1,4 @@
-//! Provides low level binding to [`AlexYaruki/sigar`], which is a fork version of [`hyperic/sigar`]
+//! Provides low level binding to [`AlexYaruki/sigar`], which is a independent fork version of official [`hyperic/sigar`]
 //!
 //! [`AlexYaruki/sigar`]: https://github.com/AlexYaruki/sigar
 //! [`hyperic/sigar`]: https://github.com/hyperic/sigar

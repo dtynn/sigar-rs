@@ -1,8 +1,17 @@
 [package]
 name = "sigar-sys"
-version = "0.1.0"
+version = "1.0.0"
 authors = ["dtynn <dtynn@163.com>"]
 build = "build.rs"
+
+description = "Low level bindings to sigar."
+documentation = "https://docs.rs/sigar-sys"
+homepage = "https://github.com/dtynn/sigar-rs"
+repository = "https://github.com/dtynn/sigar-rs"
+readme = "README.md"
+keywords = ["sigar", "sys", "ffi", "binding"]
+license = "MIT"
+categories = ["external-ffi-bindings"]
 
 [dependencies]
 libc = "0.2"
