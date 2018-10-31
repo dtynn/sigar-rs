@@ -1,0 +1,6 @@
+[package]
+name = "sigar-sys"
+version = "0.1.0"
+authors = ["dtynn <dtynn@163.com>"]
+
+[dependencies]
