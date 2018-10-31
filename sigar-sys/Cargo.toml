@@ -6,7 +6,7 @@ build = "build.rs"
 
 description = "Low level bindings to sigar."
 documentation = "https://docs.rs/sigar-sys"
-homepage = "https://github.com/dtynn/sigar-rs"
+homepage = "https://github.com/dtynn/sigar-rs/tree/master/sigar-sys"
 repository = "https://github.com/dtynn/sigar-rs"
 readme = "README.md"
 keywords = ["sigar", "sys", "ffi", "binding"]
