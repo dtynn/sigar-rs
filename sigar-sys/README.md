@@ -19,20 +19,12 @@ extern crate sigar_sys;
 
 #### Notes
 
-As a `-sys` crate, this provides only the binding to sigar.
+- As a `-sys` crate, this provides only the binding to sigar.
 
-The sigar documentation itself is at [SourceForge/sigar](https://sourceforge.net/projects/sigar/).
+  The sigar documentation itself is at [SourceForge/sigar](https://sourceforge.net/projects/sigar/).
 
+- The build script for this crate always makes a static linking.
 
+- This crate has been tested to work on Windows(with msvc), Linux and macOS.
 
-
-
-The build script for this crate always makes a static linking.
-
-
-
-
-
-This crate has been tested to work on Windows(with msvc), Linux and macOS.
-
-Other platforms or envs may work, and PRs to support them are welcome.
+  Other platforms or envs may work, and PRs to support them are welcome.
