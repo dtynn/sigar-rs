@@ -25,7 +25,11 @@ The sigar documentation itself is at [SourceForge/sigar](https://sourceforge.net
 
 
 
+
+
 The build script for this crate always makes a static linking.
+
+
 
 
 
