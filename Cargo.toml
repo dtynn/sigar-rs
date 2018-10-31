@@ -5,7 +5,7 @@ authors = ["dtynn <dtynn@163.com>"]
 build = "build.rs"
 
 [workspace]
-members = ["sigar-sys", "sigar-demo"]
+members = ["sigar-sys"]
 
 [dependencies]
 sigar-sys = { version = "1", path = "sigar-sys" }

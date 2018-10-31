@@ -6,7 +6,7 @@ fn main() {
 }
 
 fn win_link_libs() {
-    println!("cargo:rustc-link-lib=static=ws2_32");
-    println!("cargo:rustc-link-lib=static=netapi32");
-    println!("cargo:rustc-link-lib=static=version");
+    println!("cargo:rustc-link-lib=ws2_32");
+    println!("cargo:rustc-link-lib=netapi32");
+    println!("cargo:rustc-link-lib=version");
 }
