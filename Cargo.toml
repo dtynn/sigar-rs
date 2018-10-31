@@ -7,3 +7,4 @@ authors = ["dtynn <dtynn@163.com>"]
 members = ["sigar-sys"]
 
 [dependencies]
+sigar-sys = { version = "1", path = "sigar-sys" }

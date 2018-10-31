@@ -31,3 +31,6 @@ pub fn error_string(sigar: *mut ffi::sigar_t, code: c_int) -> String {
             .to_string()
     }
 }
+
+/// Represents OK returned from functions
+pub const SIGAR_CODE_OK: i32 = ffi::SIGAR_OK as i32;
