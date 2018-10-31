@@ -48,12 +48,7 @@ pub fn get() -> SigarResult<CPUUsage> {
 }
 
 /// CPU usage list
-#[derive(Debug, Default)]
-pub struct CPUUsageList {
-    pub number: u64,
-    pub size: u64,
-    pub data: Vec<CPUUsage>,
-}
+pub type CPUUsageList = Vec<CPUUsage>;
 
 /// Returns cpu usage list
 pub fn list() -> SigarResult<CPUUsageList> {
@@ -66,20 +61,7 @@ pub fn list() -> SigarResult<CPUUsageList> {
 }
 
 fn list_trans(info: sigar_cpu_list_t) -> CPUUsageList {
-    let mut cpulist = value_convert!(
-        CPUUsageList,
-        info,
-        number,
-        size,
-        (data: Vec::with_capacity(info.number as usize)),
-    );
-
-    let data = unsafe { from_raw_parts(info.data, info.number as usize) };
-    for one in data {
-        cpulist.data.push(CPUUsage::from_raw(one));
-    }
-
-    cpulist
+    ffi_extract_list!(info, CPUUsage::from_raw)
 }
 
 /// CPU informations
@@ -96,12 +78,8 @@ pub struct CPUInfo {
     pub cores_per_socket: i32,
 }
 
-#[derive(Debug)]
-pub struct CPUInfoList {
-    pub number: u64,
-    pub size: u64,
-    pub data: Vec<CPUInfo>,
-}
+/// CPU info list
+pub type CPUInfoList = Vec<CPUInfo>;
 
 /// Returns cpu info list
 pub fn info_list() -> SigarResult<CPUInfoList> {
@@ -114,17 +92,9 @@ pub fn info_list() -> SigarResult<CPUInfoList> {
 }
 
 fn info_list_trans(info: sigar_cpu_info_list_t) -> CPUInfoList {
-    let mut infolist = value_convert!(
-        CPUInfoList,
+    ffi_extract_list!(
         info,
-        number,
-        size,
-        (data: Vec::with_capacity(info.number as usize)),
-    );
-
-    let data = unsafe { from_raw_parts(info.data, info.number as usize) };
-    for one in data {
-        infolist.data.push(value_convert!(
+        (|one: &sigar_cpu_info_t| value_convert!(
             CPUInfo,
             one,
             mhz,
@@ -136,10 +106,8 @@ fn info_list_trans(info: sigar_cpu_info_list_t) -> CPUInfoList {
             cores_per_socket,
             (vendor: must_chars_to_string(&one.vendor[..])),
             (model: must_chars_to_string(&one.model[..])),
-        ));
-    }
-
-    infolist
+        ))
+    )
 }
 
 /// CPU usage percentage

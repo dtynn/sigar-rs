@@ -13,3 +13,4 @@ mod macros;
 pub mod cpu;
 pub mod load;
 pub mod mem;
+pub mod process;

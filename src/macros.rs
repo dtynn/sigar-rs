@@ -97,3 +97,38 @@ macro_rules! value_convert {
         }
     };
 }
+
+macro_rules! ffi_extract_list {
+    ($raw:ident, $trans:ident) => {{
+        let mut list = Vec::with_capacity($raw.number as usize);
+
+        let data = unsafe { from_raw_parts($raw.data, $raw.number as usize) };
+        for one in data {
+            list.push($trans(one));
+        }
+
+        list
+    }};
+
+    ($raw:ident, $trans:path) => {{
+        let mut list = Vec::with_capacity($raw.number as usize);
+
+        let data = unsafe { from_raw_parts($raw.data, $raw.number as usize) };
+        for one in data {
+            list.push($trans(one));
+        }
+
+        list
+    }};
+
+    ($raw:ident, $trans:tt) => {{
+        let mut list = Vec::with_capacity($raw.number as usize);
+
+        let data = unsafe { from_raw_parts($raw.data, $raw.number as usize) };
+        for one in data {
+            list.push($trans(one));
+        }
+
+        list
+    }};
+}
