@@ -1,0 +1,14 @@
+[package]
+name = "sigar-demo"
+version = "0.1.0"
+authors = ["dtynn <dtynn@163.com>"]
+
+[[bin]]
+name = "main"
+path = "src/main.rs"
+
+[[bin]]
+name = "cpulist"
+
+[dependencies]
+sigar-rs = { version = "0.1", path = "../" }

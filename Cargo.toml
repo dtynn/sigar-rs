@@ -2,9 +2,10 @@
 name = "sigar-rs"
 version = "0.1.0"
 authors = ["dtynn <dtynn@163.com>"]
+build = "build.rs"
 
 [workspace]
-members = ["sigar-sys"]
+members = ["sigar-sys", "sigar-demo"]
 
 [dependencies]
 sigar-sys = { version = "1", path = "sigar-sys" }
