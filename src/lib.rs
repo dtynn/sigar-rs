@@ -1,10 +1,9 @@
 //! Provides a high level wrapper of sigar
 
-#![warn(missing_docs)]
-
 extern crate sigar_sys;
 
 mod result;
+mod util;
 
 pub use result::{Error, SigarResult};
 
