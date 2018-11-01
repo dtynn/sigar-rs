@@ -5,12 +5,18 @@
 use super::{result::*, util::*};
 use sigar_sys::*;
 
+/// Returns pid for current process
+pub fn current_pid() -> SigarResult<u32> {
+    ffi_wrap_sigar_t!((|ptr_t| unsafe { sigar_pid_get(ptr_t) as u32 }))
+}
+
 // C: sigar_proc_kill
 /// Kills a specific process with given process id & signal
 pub fn kill(pid: u32, signal: i32) -> SigarResult<()> {
     let res = unsafe { sigar_proc_kill(pid as sigar_pid_t, signal as ::std::os::raw::c_int) };
     if res != SIGAR_CODE_OK {
-        return Err(Error::new(std::ptr::null_mut(), res));
+        let reason = ffi_wrap_sigar_t!((|ptr_t| error_string(ptr_t, res.into())))?;
+        return Err(Error::from_string(reason));
     }
 
     Ok(())

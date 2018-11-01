@@ -3,7 +3,6 @@
 
 use super::{result::*, util::*};
 use sigar_sys::*;
-use std;
 
 /// CPU usage
 #[derive(Debug)]

@@ -1,23 +1,13 @@
 macro_rules! ffi_wrap {
     ($fname:ident, $target:ident) => {{
         let result: SigarResult<$target> = unsafe {
-            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
-
-            let res = sigar_open(&mut sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
+            let sigar_ptr = SigarPtr::new()?;
 
             let mut info: $target = Default::default();
 
-            let res = $fname(sigar_ptr, &mut info);
+            let res = $fname(sigar_ptr.ptr, &mut info);
             if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
-
-            let res = sigar_close(sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to close sigar"));
+                return Err(Error::new(sigar_ptr.ptr, res));
             }
 
             Ok(info)
@@ -28,29 +18,19 @@ macro_rules! ffi_wrap {
 
     ($fname:ident, ($($arg:expr), +), $target:ident) => {{
         let result: SigarResult<$target> = unsafe {
-            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
-
-            let res = sigar_open(&mut sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
+            let sigar_ptr = SigarPtr::new()?;
 
             let mut info: $target = Default::default();
 
             let res = $fname(
-                sigar_ptr,
+                sigar_ptr.ptr,
                 $(
                     $arg,
                 )+
                 &mut info,
             );
             if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
-
-            let res = sigar_close(sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to close sigar"));
+                return Err(Error::new(sigar_ptr.ptr, res));
             }
 
             Ok(info)
@@ -61,101 +41,37 @@ macro_rules! ffi_wrap {
 }
 
 macro_rules! ffi_wrap_destroy {
-    ($fnget:ident, $fndestroy:ident, $target:ident, $trans:ident) => {
-        unsafe {
-            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
-
-            let res = sigar_open(&mut sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
-
-            let mut info: $target = Default::default();
-
-            let res = $fnget(sigar_ptr, &mut info);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
-
-            let entity = $trans(&info);
-
-            let res = $fndestroy(sigar_ptr, &mut info);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to destroy sigar"));
-            }
-
-            let res = sigar_close(sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to close sigar"));
-            }
-
-            Ok(entity)
-        }
-    };
-
     ($fnget:ident, $fndestroy:ident, $target:ident, $trans:tt) => {
         unsafe {
-            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
-
-            let res = sigar_open(&mut sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
+            let sigar_ptr = SigarPtr::new()?;
 
             let mut info: $target = Default::default();
 
-            let res = $fnget(sigar_ptr, &mut info);
+            let res = $fnget(sigar_ptr.ptr, &mut info);
             if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
+                return Err(Error::new(sigar_ptr.ptr, res));
             }
 
             let entity = $trans(&info);
 
-            let res = $fndestroy(sigar_ptr, &mut info);
+            let res = $fndestroy(sigar_ptr.ptr, &mut info);
             if res != SIGAR_CODE_OK {
                 return Err(Error::from_str("failed to destroy sigar"));
-            }
-
-            let res = sigar_close(sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to close sigar"));
             }
 
             Ok(entity)
         }
     };
+}
 
-    ($fnget:tt, $fndestroy:ident, $target:ident, $trans:tt) => {
-        unsafe {
-            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
+macro_rules! ffi_wrap_sigar_t {
+    ($func:tt) => {{
+        let sigar_ptr = SigarPtr::new()?;
 
-            let res = sigar_open(&mut sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
+        let ret = $func(sigar_ptr.ptr);
 
-            let mut info: $target = Default::default();
-
-            let res = $fnget(sigar_ptr, &mut info);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::new(sigar_ptr, res));
-            }
-
-            let entity = $trans(&info);
-
-            let res = $fndestroy(sigar_ptr, &mut info);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to destroy sigar"));
-            }
-
-            let res = sigar_close(sigar_ptr);
-            if res != SIGAR_CODE_OK {
-                return Err(Error::from_str("failed to close sigar"));
-            }
-
-            Ok(entity)
-        }
-    };
+        Ok(ret)
+    }};
 }
 
 macro_rules! value_convert {

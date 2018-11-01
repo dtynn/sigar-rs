@@ -1,7 +1,7 @@
 //! Provides methods for gathering memory informations
 //!
 
-use super::result::*;
+use super::{result::*, util::*};
 use sigar_sys::*;
 
 /// Memory information

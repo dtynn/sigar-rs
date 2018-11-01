@@ -27,6 +27,10 @@ impl Error {
         Error(s.to_string())
     }
 
+    pub(crate) fn from_string(s: String) -> Self {
+        Error(s)
+    }
+
     /// Returns the error reason
     pub fn reason(&self) -> String {
         self.0.clone()

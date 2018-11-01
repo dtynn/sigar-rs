@@ -6,6 +6,8 @@ fn main() {
     let pid = std::process::id();
     println!("process information for {}", pid);
 
+    assert_eq!(pid, process::current_pid().unwrap());
+
     println!("mem usage: {:?}", process::mem(pid).unwrap());
 
     #[cfg(target_os = "linux")]
