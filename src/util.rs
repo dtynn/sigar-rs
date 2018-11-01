@@ -13,3 +13,5 @@ pub(crate) fn must_chars_to_string(chars: &[c_char]) -> String {
 
     String::from_utf8(bytes).expect("invalid utf8 string")
 }
+
+pub(crate) use std::slice::from_raw_parts;

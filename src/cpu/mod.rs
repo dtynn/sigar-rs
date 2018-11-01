@@ -3,7 +3,7 @@
 
 use super::{result::*, util::*};
 use sigar_sys::*;
-use std::{self, slice::from_raw_parts};
+use std;
 
 /// CPU usage
 #[derive(Debug)]
@@ -56,12 +56,8 @@ pub fn list() -> SigarResult<CPUUsageList> {
         sigar_cpu_list_get,
         sigar_cpu_list_destroy,
         sigar_cpu_list_t,
-        list_trans
+        (|list: &sigar_cpu_list_t| ffi_extract_list!(list, CPUUsage::from_raw))
     )
-}
-
-fn list_trans(info: sigar_cpu_list_t) -> CPUUsageList {
-    ffi_extract_list!(info, CPUUsage::from_raw)
 }
 
 /// CPU informations
@@ -87,14 +83,9 @@ pub fn info_list() -> SigarResult<CPUInfoList> {
         sigar_cpu_info_list_get,
         sigar_cpu_info_list_destroy,
         sigar_cpu_info_list_t,
-        info_list_trans
-    )
-}
-
-fn info_list_trans(info: sigar_cpu_info_list_t) -> CPUInfoList {
-    ffi_extract_list!(
-        info,
-        (|one: &sigar_cpu_info_t| value_convert!(
+        (|list: &sigar_cpu_info_list_t| ffi_extract_list!(
+            list,
+            (|one: &sigar_cpu_info_t| value_convert!(
             CPUInfo,
             one,
             mhz,
@@ -106,6 +97,7 @@ fn info_list_trans(info: sigar_cpu_info_list_t) -> CPUInfoList {
             cores_per_socket,
             (vendor: must_chars_to_string(&one.vendor[..])),
             (model: must_chars_to_string(&one.model[..])),
+        ))
         ))
     )
 }
