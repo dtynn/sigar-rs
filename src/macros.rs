@@ -25,6 +25,39 @@ macro_rules! ffi_wrap {
 
         result
     }};
+
+    ($fname:ident, ($($arg:expr), +), $target:ident) => {{
+        let result: SigarResult<$target> = unsafe {
+            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
+
+            let res = sigar_open(&mut sigar_ptr);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr, res));
+            }
+
+            let mut info: $target = Default::default();
+
+            let res = $fname(
+                sigar_ptr,
+                $(
+                    $arg,
+                )+
+                &mut info,
+            );
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr, res));
+            }
+
+            let res = sigar_close(sigar_ptr);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::from_str("failed to close sigar"));
+            }
+
+            Ok(info)
+        };
+
+        result
+    }};
 }
 
 macro_rules! ffi_wrap_destroy {
