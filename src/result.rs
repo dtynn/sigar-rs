@@ -4,7 +4,7 @@ use std::{error::Error as stdError, fmt};
 pub(crate) use sigar_sys::SIGAR_CODE_OK;
 
 /// Type alias for [`Result<T, Error>`]
-pub type SigarResult<T> = Result<T, Error>;
+pub type SigarResult<T = ()> = Result<T, Error>;
 
 /// Wraps inner reason from sigar::sigar_strerror
 #[derive(Debug)]

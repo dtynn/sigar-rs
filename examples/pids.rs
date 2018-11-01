@@ -7,11 +7,6 @@ fn main() {
 
     println!("pids: {:?}", pids);
 
-    let stat = process::stat().unwrap();
+    let stat = process::summary().unwrap();
     println!("stats: {:?}", stat);
-
-    if pids.len() > 0 {
-        let memusage = process::mem(pids[0]).unwrap();
-        println!("mem usage for {:?}: {:?}", pids[0], memusage);
-    }
 }

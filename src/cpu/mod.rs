@@ -7,7 +7,7 @@ use std;
 
 /// CPU usage
 #[derive(Debug)]
-pub struct CPUUsage {
+pub struct Usage {
     pub user: u64,
     pub sys: u64,
     pub nice: u64,
@@ -19,9 +19,9 @@ pub struct CPUUsage {
     pub total: u64,
 }
 
-impl CPUUsage {
+impl Usage {
     fn from_raw(raw: &sigar_cpu_t) -> Self {
-        value_convert!(CPUUsage, raw, user, sys, nice, idle, wait, irq, soft_irq, stolen, total)
+        value_convert!(Usage, raw, user, sys, nice, idle, wait, irq, soft_irq, stolen, total)
     }
 
     fn to_raw(&self) -> sigar_cpu_t {
@@ -42,27 +42,27 @@ impl CPUUsage {
 }
 
 /// Returns cpu usage
-pub fn get() -> SigarResult<CPUUsage> {
+pub fn get() -> SigarResult<Usage> {
     let raw = ffi_wrap!(sigar_cpu_get, sigar_cpu_t)?;
-    Ok(CPUUsage::from_raw(&raw))
+    Ok(Usage::from_raw(&raw))
 }
 
 /// CPU usage list
-pub type CPUUsageList = Vec<CPUUsage>;
+pub type UsageList = Vec<Usage>;
 
 /// Returns cpu usage list
-pub fn list() -> SigarResult<CPUUsageList> {
+pub fn list() -> SigarResult<UsageList> {
     ffi_wrap_destroy!(
         sigar_cpu_list_get,
         sigar_cpu_list_destroy,
         sigar_cpu_list_t,
-        (|list: &sigar_cpu_list_t| ffi_extract_list!(list, CPUUsage::from_raw))
+        (|list: &sigar_cpu_list_t| ffi_extract_list!(list, Usage::from_raw))
     )
 }
 
 /// CPU informations
 #[derive(Debug)]
-pub struct CPUInfo {
+pub struct Info {
     pub vendor: String,
     pub model: String,
     pub mhz: i32,
@@ -75,10 +75,10 @@ pub struct CPUInfo {
 }
 
 /// CPU info list
-pub type CPUInfoList = Vec<CPUInfo>;
+pub type InfoList = Vec<Info>;
 
 /// Returns cpu info list
-pub fn info_list() -> SigarResult<CPUInfoList> {
+pub fn info_list() -> SigarResult<InfoList> {
     ffi_wrap_destroy!(
         sigar_cpu_info_list_get,
         sigar_cpu_info_list_destroy,
@@ -86,7 +86,7 @@ pub fn info_list() -> SigarResult<CPUInfoList> {
         (|list: &sigar_cpu_info_list_t| ffi_extract_list!(
             list,
             (|one: &sigar_cpu_info_t| value_convert!(
-            CPUInfo,
+            Info,
             one,
             mhz,
             mhz_max,
@@ -103,9 +103,9 @@ pub fn info_list() -> SigarResult<CPUInfoList> {
 }
 
 /// CPU usage percentage
-pub type CPUUsagePercent = sigar_cpu_perc_t;
+pub type UsagePercent = sigar_cpu_perc_t;
 
-pub fn calc_percent(prev: &CPUUsage, curr: &CPUUsage) -> CPUUsagePercent {
+pub fn calc_percent(prev: &Usage, curr: &Usage) -> UsagePercent {
     let mut perc = Default::default();
     unsafe {
         sigar_cpu_perc_calculate(&mut prev.to_raw(), &mut curr.to_raw(), &mut perc);

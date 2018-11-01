@@ -124,38 +124,67 @@ macro_rules! ffi_wrap_destroy {
             Ok(entity)
         }
     };
+
+    ($fnget:tt, $fndestroy:ident, $target:ident, $trans:tt) => {
+        unsafe {
+            let mut sigar_ptr: *mut sigar_t = std::ptr::null_mut();
+
+            let res = sigar_open(&mut sigar_ptr);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr, res));
+            }
+
+            let mut info: $target = Default::default();
+
+            let res = $fnget(sigar_ptr, &mut info);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr, res));
+            }
+
+            let entity = $trans(&info);
+
+            let res = $fndestroy(sigar_ptr, &mut info);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::from_str("failed to destroy sigar"));
+            }
+
+            let res = sigar_close(sigar_ptr);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::from_str("failed to close sigar"));
+            }
+
+            Ok(entity)
+        }
+    };
 }
 
 macro_rules! value_convert {
-    ($struct:ident, $src:ident, $($field:ident), +) => {
+    ($struct:ident, $src:ident, $($field:ident), *) => {
         $struct {
             $(
             $field: $src.$field.into(),
-            )+
+            )*
         }
     };
-    ($struct:ident, $src:expr, $($field:ident), +) => {
+    ($struct:ident, $src:expr, $($field:ident), *) => {
         $struct {
             $(
             $field: $src.$field.into(),
-            )+
+            )*
         }
     };
-    ($struct:ident, $src:ident, $($field:ident), +, $(($ofield:ident : $oexpr:expr),) *) => {
+    ($struct:ident, $src:ident, $($field:ident), *, $(($ofield:ident : $oexpr:expr),) *) => {
         $struct {
             $(
             $field: $src.$field.into(),
-            )+
+            )*
             $(
             $ofield: $oexpr,
             )*
         }
     };
-    ($struct:ident, $src:expr, $($field:ident), +, $($ofield:ident : $oexpr:expr,) *) => {
+    ($struct:ident, $src:expr, $($ofield:ident : $oexpr:expr,) *) => {
         $struct {
-            $(
-            $field: $src.$field.into(),
-            )+
             $(
             $ofield: $oexpr,
             )*
