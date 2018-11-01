@@ -6,10 +6,6 @@ pub(crate) fn chars_to_bytes(chars: &[c_char]) -> Vec<u8> {
     let mut bytes: Vec<u8> = Vec::with_capacity(chars.len());
 
     for i in chars {
-        if *i == 0 {
-            break;
-        }
-
         bytes.push(*i as u8);
     }
 
@@ -39,4 +35,19 @@ impl Drop for SigarPtr {
     fn drop(&mut self) {
         unsafe { sigar_close(self.ptr) };
     }
+}
+
+/// Strips ending zeros in the bytes
+pub fn strip_bytes(bytes: &[u8]) -> &[u8] {
+    let mut i = 0usize;
+
+    while i < bytes.len() {
+        if bytes[i] == 0 {
+            break;
+        }
+
+        i += 1;
+    }
+
+    &bytes[..i]
 }
