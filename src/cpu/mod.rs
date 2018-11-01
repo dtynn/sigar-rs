@@ -62,8 +62,8 @@ pub fn list() -> SigarResult<UsageList> {
 /// CPU informations
 #[derive(Debug)]
 pub struct Info {
-    pub vendor: String,
-    pub model: String,
+    pub vendor: Vec<u8>,
+    pub model: Vec<u8>,
     pub mhz: i32,
     pub mhz_max: i32,
     pub mhz_min: i32,
@@ -94,8 +94,8 @@ pub fn info_list() -> SigarResult<InfoList> {
             total_sockets,
             total_cores,
             cores_per_socket,
-            (vendor: must_chars_to_string(&one.vendor[..])),
-            (model: must_chars_to_string(&one.model[..])),
+            (vendor: chars_to_bytes(&one.vendor[..])),
+            (model: chars_to_bytes(&one.model[..])),
         ))
         ))
     )

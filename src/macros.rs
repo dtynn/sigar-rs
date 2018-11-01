@@ -75,13 +75,6 @@ macro_rules! ffi_wrap_sigar_t {
 }
 
 macro_rules! value_convert {
-    ($struct:ident, $src:ident, $($field:ident), *) => {
-        $struct {
-            $(
-            $field: $src.$field.into(),
-            )*
-        }
-    };
     ($struct:ident, $src:expr, $($field:ident), *) => {
         $struct {
             $(
@@ -94,13 +87,6 @@ macro_rules! value_convert {
             $(
             $field: $src.$field.into(),
             )*
-            $(
-            $ofield: $oexpr,
-            )*
-        }
-    };
-    ($struct:ident, $src:expr, $($ofield:ident : $oexpr:expr,) *) => {
-        $struct {
             $(
             $ofield: $oexpr,
             )*

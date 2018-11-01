@@ -151,8 +151,8 @@ pub fn cred(pid: u32) -> SigarResult<Cred> {
 /// Process cred name
 #[derive(Debug)]
 pub struct CredName {
-    pub user: String,
-    pub group: String,
+    pub user: Vec<u8>,
+    pub group: Vec<u8>,
 }
 
 pub fn cred_name(pid: u32) -> SigarResult<CredName> {
@@ -162,12 +162,10 @@ pub fn cred_name(pid: u32) -> SigarResult<CredName> {
         sigar_proc_cred_name_t
     )?;
 
-    Ok(value_convert!(
-        CredName,
-        raw,
-        user: must_chars_to_string(&raw.user[..]),
-        group: must_chars_to_string(&raw.group[..]),
-    ))
+    Ok(CredName {
+        user: chars_to_bytes(&raw.user[..]),
+        group: chars_to_bytes(&raw.group[..]),
+    })
 }
 
 // C: sigar_proc_time_get
@@ -211,7 +209,7 @@ pub fn cpu(pid: u32) -> SigarResult<CPU> {
 // C: sigar_proc_state_get
 #[derive(Debug)]
 pub struct State {
-    pub name: String,
+    pub name: Vec<u8>,
     pub state: u8,
     pub ppid: i32,
     pub tty: i32,
@@ -231,7 +229,7 @@ pub fn state(pid: u32) -> SigarResult<State> {
 
     Ok(value_convert!(
         State, raw, ppid, tty, priority, nice, processor, threads,
-        (name: must_chars_to_string(&raw.name[..])),
+        (name: chars_to_bytes(&raw.name[..])),
         (state: raw.state as u8),
     ))
 }

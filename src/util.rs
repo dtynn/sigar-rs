@@ -2,7 +2,7 @@ use super::result::{Error, SigarResult};
 use sigar_sys::{sigar_close, sigar_open, sigar_t, SIGAR_CODE_OK};
 use std::{self, os::raw::c_char};
 
-pub(crate) fn must_chars_to_string(chars: &[c_char]) -> String {
+pub(crate) fn chars_to_bytes(chars: &[c_char]) -> Vec<u8> {
     let mut bytes: Vec<u8> = Vec::with_capacity(chars.len());
 
     for i in chars {
@@ -13,7 +13,7 @@ pub(crate) fn must_chars_to_string(chars: &[c_char]) -> String {
         bytes.push(*i as u8);
     }
 
-    String::from_utf8(bytes).expect("invalid utf8 string")
+    bytes
 }
 
 pub(crate) use std::slice::from_raw_parts;
