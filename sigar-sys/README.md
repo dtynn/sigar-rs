@@ -104,5 +104,5 @@ unsafe fn pidlist() -> Result<Vec<ffi::sigar_pid_t>, String> {
 
 
 
-**to run the the example code on windows, we should link 3 more libs: `ws2_32` `netapi32`, `version`, maybe in the build scripts**
+**to run the example code on windows, we should link 3 more libs: `ws2_32` `netapi32`, `version`, maybe in the build scripts**
 
