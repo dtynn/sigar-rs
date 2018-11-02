@@ -245,7 +245,7 @@ pub struct FD {
 pub fn fd(pid: u32) -> SigarResult<FD> {
     let raw = ffi_wrap!(sigar_proc_fd_get, (pid as sigar_pid_t), sigar_proc_fd_t)?;
 
-    Ok(FD { total: raw.total })
+    Ok(value_convert!(FD, raw, total,))
 }
 
 // TODO: some methods

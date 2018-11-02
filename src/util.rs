@@ -2,6 +2,10 @@ use super::result::{Error, SigarResult};
 use sigar_sys::{sigar_close, sigar_open, sigar_t, SIGAR_CODE_OK};
 use std::{self, os::raw::c_char};
 
+#[allow(unused_imports)]
+pub(crate) use super::integer::CastTo;
+pub(crate) use std::slice::from_raw_parts;
+
 pub(crate) fn chars_to_bytes(chars: &[c_char]) -> Vec<u8> {
     let mut bytes: Vec<u8> = Vec::with_capacity(chars.len());
 
@@ -11,8 +15,6 @@ pub(crate) fn chars_to_bytes(chars: &[c_char]) -> Vec<u8> {
 
     bytes
 }
-
-pub(crate) use std::slice::from_raw_parts;
 
 pub(crate) struct SigarPtr {
     pub(crate) ptr: *mut sigar_t,

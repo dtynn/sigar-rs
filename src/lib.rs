@@ -5,6 +5,7 @@ extern crate sigar_sys;
 mod result;
 mod util;
 pub use util::strip_bytes;
+mod integer;
 
 pub use result::{Error, SigarResult};
 
