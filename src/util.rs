@@ -41,15 +41,15 @@ impl Drop for SigarPtr {
 
 /// Strips ending zeros in the bytes
 pub fn strip_bytes(bytes: &[u8]) -> &[u8] {
-    let mut i = 0usize;
+    let mut len = bytes.len();
 
-    while i < bytes.len() {
-        if bytes[i] == 0 {
+    while len > 0 {
+        if bytes[len - 1] != 0 {
             break;
         }
 
-        i += 1;
+        len -= 1;
     }
 
-    &bytes[..i]
+    &bytes[..len]
 }

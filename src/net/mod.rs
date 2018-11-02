@@ -3,6 +3,8 @@
 
 use super::{result::*, util::*};
 use sigar_sys::*;
+use std::error::Error as stdError;
+use std::ffi::CString;
 use std::net;
 
 // C: sigar_net_info_get
@@ -81,14 +83,14 @@ impl Address {
 }
 
 #[derive(Debug)]
-pub struct Net {
+pub struct NetAddress {
     pub family: AFFamily,
     pub address: Address,
 }
 
-impl Net {
+impl NetAddress {
     fn from_raw(raw: &sigar_net_address_t) -> Self {
-        Net {
+        NetAddress {
             family: AFFamily::from_raw(raw.family),
             address: Address::from_raw(&raw.addr),
         }
@@ -97,9 +99,9 @@ impl Net {
 
 #[derive(Debug)]
 pub struct Route {
-    pub destination: Net,
-    pub gateway: Net,
-    pub mask: Net,
+    pub destination: NetAddress,
+    pub gateway: NetAddress,
+    pub mask: NetAddress,
     pub flags: u64,
     pub refcnt: u64,
     pub use_: u64,
@@ -122,9 +124,9 @@ impl Route {
             mtu,
             window,
             irtt,
-            (destination: Net::from_raw(&raw.destination)),
-            (gateway: Net::from_raw(&raw.gateway)),
-            (mask: Net::from_raw(&raw.mask)),
+            (destination: NetAddress::from_raw(&raw.destination)),
+            (gateway: NetAddress::from_raw(&raw.gateway)),
+            (mask: NetAddress::from_raw(&raw.mask)),
             (ifname: chars_to_bytes(&raw.ifname[..])),
         )
     }
@@ -143,7 +145,71 @@ pub fn route_list() -> SigarResult<Vec<Route>> {
 }
 
 // C: sigar_net_interface_config_get
+#[derive(Debug)]
+pub struct InterfaceConfig {
+    pub name: Vec<u8>,
+    pub type_: Vec<u8>,
+    pub description: Vec<u8>,
+    pub hwaddr: NetAddress,
+    pub address: NetAddress,
+    pub destination: NetAddress,
+    pub broadcast: NetAddress,
+    pub netmask: NetAddress,
+    pub address6: NetAddress,
+    pub prefix6_length: i32,
+    pub scope6: i32,
+    pub flags: u64,
+    pub mtu: u64,
+    pub metric: u64,
+    pub tx_queue_len: i32,
+}
+
+impl InterfaceConfig {
+    fn from_raw(raw: &sigar_net_interface_config_t) -> Self {
+        value_convert!(
+            InterfaceConfig,
+            raw,
+            prefix6_length,
+            scope6,
+            flags,
+            mtu,
+            metric,
+            tx_queue_len,
+            (name: chars_to_bytes(&raw.name[..])),
+            (type_: chars_to_bytes(&raw.type_[..])),
+            (description: chars_to_bytes(&raw.description[..])),
+            (hwaddr: NetAddress::from_raw(&raw.hwaddr)),
+            (address: NetAddress::from_raw(&raw.address)),
+            (destination: NetAddress::from_raw(&raw.destination)),
+            (broadcast: NetAddress::from_raw(&raw.broadcast)),
+            (netmask: NetAddress::from_raw(&raw.netmask)),
+            (address6: NetAddress::from_raw(&raw.address6)),
+        )
+    }
+}
+
+/// Returns interface config for given name
+pub fn interface_config(name: &str) -> SigarResult<InterfaceConfig> {
+    let name_ptr = CString::new(name).map_err(|e| Error::from_str(e.description()))?;
+    let raw = ffi_wrap!(
+        sigar_net_interface_config_get,
+        (name_ptr.as_ptr()),
+        sigar_net_interface_config_t
+    )?;
+
+    Ok(InterfaceConfig::from_raw(&raw))
+}
+
 // C: sigar_net_interface_config_primary_get
+
+pub fn interface_config_primary() -> SigarResult<InterfaceConfig> {
+    let raw = ffi_wrap!(
+        sigar_net_interface_config_primary_get,
+        sigar_net_interface_config_t
+    )?;
+
+    Ok(InterfaceConfig::from_raw(&raw))
+}
 // C: sigar_net_interface_stat_get
 // C: sigar_net_interface_list_get
 // C: sigar_net_interface_list_destroy
