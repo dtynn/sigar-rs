@@ -53,3 +53,11 @@ pub fn strip_bytes(bytes: &[u8]) -> &[u8] {
 
     &bytes[..len]
 }
+
+pub(crate) fn u32_reverse(src: u32) -> u32 {
+    const MASK_U8: u32 = !(0u32) >> 24;
+    (src & MASK_U8) << 24
+        | (src >> 8 & MASK_U8) << 16
+        | (src >> 16 & MASK_U8) << 8
+        | (src >> 24 & MASK_U8)
+}
