@@ -1419,7 +1419,7 @@ sigar_getline_histadd(char *buf)
                /* if more than HIST_SIZE lines, safe last 60 command and delete rest */
                if (gl_savehist > HIST_SIZE) {
                   FILE *ftmp;
-                  
+
                   char line[BUFSIZ];
 
                   fp = fopen(gl_histfile, "r");

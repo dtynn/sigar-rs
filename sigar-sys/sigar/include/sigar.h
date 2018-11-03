@@ -975,7 +975,7 @@ SIGAR_DECLARE(int) sigar_rpc_ping(char *hostname,
 
 SIGAR_DECLARE(char *) sigar_rpc_strerror(int err);
 
-SIGAR_DECLARE(char *) sigar_password_get(const char *prompt);
+// SIGAR_DECLARE(char *) sigar_password_get(const char *prompt);
 
 #ifdef __cplusplus
 }

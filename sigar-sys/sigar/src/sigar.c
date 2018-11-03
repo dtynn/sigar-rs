@@ -266,7 +266,7 @@ void get_cache_info(sigar_cache_t * cache, char * name){
 }
 
 SIGAR_DECLARE(int) sigar_dump_pid_cache_get(sigar_t *sigar, sigar_dump_pid_cache_t *info) {
-  
+
   get_cache_info(sigar->proc_cpu, "proc cpu cache");
   get_cache_info(sigar->proc_io, "proc io cache");
   return SIGAR_OK;
@@ -564,10 +564,10 @@ static int sigar_common_fs_type_get(sigar_file_system_t *fsp)
             fsp->type = SIGAR_FSTYPE_LOCAL_DISK;
         }
         break;
-      case 'z': 
-        if (strEQ(type, "zfs")) { 
-            fsp->type = SIGAR_FSTYPE_LOCAL_DISK; 
-        } 
+      case 'z':
+        if (strEQ(type, "zfs")) {
+            fsp->type = SIGAR_FSTYPE_LOCAL_DISK;
+        }
         break;
     }
 
@@ -804,10 +804,10 @@ sigar_net_connection_list_destroy(sigar_t *sigar,
 }
 
 #if !defined(__linux__)
-/* 
+/*
  * implement sigar_net_connection_list_get using sigar_net_connection_walk
  * linux has its own list_get impl.
- */  
+ */
 static int net_connection_list_walker(sigar_net_connection_walker_t *walker,
                                       sigar_net_connection_t *conn)
 {
@@ -948,7 +948,7 @@ sigar_net_stat_get(sigar_t *sigar,
     if (!sigar->net_listen) {
         sigar->net_listen = sigar_cache_new(32);
     }
-    
+
     SIGAR_ZERO(netstat);
 
     getter.netstat = netstat;
@@ -1128,17 +1128,17 @@ SIGAR_DECLARE(int) sigar_who_list_destroy(sigar_t *sigar,
     return SIGAR_OK;
 }
 
-#if defined(NETWARE)
-static char *getpass(const char *prompt)
-{
-    static char password[BUFSIZ];
+// #if defined(NETWARE)
+// static char *getpass(const char *prompt)
+// {
+//     static char password[BUFSIZ];
 
-    fputs(prompt, stderr);
-    fgets((char *)&password, sizeof(password), stdin);
+//     fputs(prompt, stderr);
+//     fgets((char *)&password, sizeof(password), stdin);
 
-    return (char *)&password;
-}
-#endif
+//     return (char *)&password;
+// }
+// #endif
 
 #define WHOCPY(dest, src) \
     SIGAR_SSTRCPY(dest, src); \
@@ -1526,7 +1526,7 @@ static void hwaddr_arp_lookup(sigar_net_interface_config_t *ifconfig, int sock)
     sa = (struct sockaddr_in *)&areq.arp_pa;
     sa->sin_family = AF_INET;
     sa->sin_addr.s_addr = ifconfig->address.addr.in;
-    
+
     if (ioctl(sock, SIOCGARP, &areq) < 0) {
         /* ho-hum */
         sigar_hwaddr_set_null(ifconfig);
@@ -1664,7 +1664,7 @@ int sigar_net_interface_config_get(sigar_t *sigar, const char *name,
         sigar_net_address_set(ifconfig->netmask,
                               ifr_s_addr(ifr));
     }
-    
+
     if (!ioctl(sock, SIOCGIFFLAGS, &ifr)) {
         sigar_uint64_t flags = ifr.ifr_flags;
 #ifdef __linux__
@@ -1762,7 +1762,7 @@ int sigar_net_interface_config_get(sigar_t *sigar, const char *name,
 #else
     ifconfig->mtu = 0; /*XXX*/
 #endif
-    
+
     if (!ioctl(sock, SIOCGIFMETRIC, &ifr)) {
         ifconfig->metric = ifr.ifr_metric ? ifr.ifr_metric : 1;
     }
@@ -1770,7 +1770,7 @@ int sigar_net_interface_config_get(sigar_t *sigar, const char *name,
 #if defined(SIOCGIFTXQLEN)
     if (!ioctl(sock, SIOCGIFTXQLEN, &ifr)) {
         ifconfig->tx_queue_len = ifr.ifr_qlen;
-    } 
+    }
     else {
         ifconfig->tx_queue_len = -1; /* net-tools behaviour */
     }
@@ -1881,7 +1881,7 @@ int sigar_net_interface_list_get(sigar_t *sigar,
 
     if (sock < 0) {
         return errno;
-    } 
+    }
 
     for (;;) {
         if (!sigar->ifconf_buf || lastlen) {
@@ -1938,7 +1938,7 @@ int sigar_net_interface_list_get(sigar_t *sigar,
         if (!sigar_netif_configured(sigar, ifr->ifr_name)) {
             continue;
         }
-#   endif        
+#   endif
 #endif
         iflist->data[iflist->number++] =
             sigar_strdup(ifr->ifr_name);
@@ -2036,7 +2036,7 @@ struct hostent *sigar_gethostbyname(const char *name,
                                     sigar_hostent_t *data)
 {
     struct hostent *hp = NULL;
- 
+
 #if defined(__linux__)
     gethostbyname_r(name, &data->hs,
                     data->buffer, sizeof(data->buffer),
@@ -2279,159 +2279,159 @@ SIGAR_DECLARE(int) sigar_fqdn_get(sigar_t *sigar, char *name, int namelen)
 #define MAX_STRING_LEN 8192
 #endif
 
-#ifdef _WIN32
-/* The windows version of getPasswordNative was lifted from apr */
-SIGAR_DECLARE(char *) sigar_password_get(const char *prompt)
-{
-    static char password[MAX_STRING_LEN];
-    int n = 0;
-    int ch;
+// #ifdef _WIN32
+// /* The windows version of getPasswordNative was lifted from apr */
+// SIGAR_DECLARE(char *) sigar_password_get(const char *prompt)
+// {
+//     static char password[MAX_STRING_LEN];
+//     int n = 0;
+//     int ch;
 
-    fputs(prompt, stderr);
-    fflush(stderr);
+//     fputs(prompt, stderr);
+//     fflush(stderr);
 
-    while ((ch = _getch()) != '\r') {
-        if (ch == EOF) /* EOF */ {
-            return NULL;
-        }
-        else if (ch == 0 || ch == 0xE0) {
-            /* FN Keys (0 or E0) are a sentinal for a FN code */ 
-            ch = (ch << 4) | _getch();
-            /* Catch {DELETE}, {<--}, Num{DEL} and Num{<--} */
-            if ((ch == 0xE53 || ch == 0xE4B || ch == 0x053 || ch == 0x04b) && n) {
-                password[--n] = '\0';
-                fputs("\b \b", stderr);
-                fflush(stderr);
-            }
-            else {
-                fputc('\a', stderr);
-                fflush(stderr);
-            }
-        }
-        else if ((ch == '\b' || ch == 127) && n) /* BS/DEL */ {
-            password[--n] = '\0';
-            fputs("\b \b", stderr);
-            fflush(stderr);
-        }
-        else if (ch == 3) /* CTRL+C */ {
-            /* _getch() bypasses Ctrl+C but not Ctrl+Break detection! */
-            fputs("^C\n", stderr);
-            fflush(stderr);
-            exit(-1);
-        }
-        else if (ch == 26) /* CTRL+Z */ {
-            fputs("^Z\n", stderr);
-            fflush(stderr);
-            return NULL;
-        }
-	else if (ch == 27) /* ESC */ {
-            fputc('\n', stderr);
-            fputs(prompt, stderr);
-            fflush(stderr);
-            n = 0;
-        }
-        else if ((n < sizeof(password) - 1) && !iscntrl(ch)) {
-            password[n++] = ch;
-            fputc(' ', stderr);
-            fflush(stderr);
-        }
-	else {
-            fputc('\a', stderr);
-            fflush(stderr);
-        }
-    }
- 
-    fputc('\n', stderr);
-    fflush(stderr);
-    password[n] = '\0';
+//     while ((ch = _getch()) != '\r') {
+//         if (ch == EOF) /* EOF */ {
+//             return NULL;
+//         }
+//         else if (ch == 0 || ch == 0xE0) {
+//             /* FN Keys (0 or E0) are a sentinal for a FN code */
+//             ch = (ch << 4) | _getch();
+//             /* Catch {DELETE}, {<--}, Num{DEL} and Num{<--} */
+//             if ((ch == 0xE53 || ch == 0xE4B || ch == 0x053 || ch == 0x04b) && n) {
+//                 password[--n] = '\0';
+//                 fputs("\b \b", stderr);
+//                 fflush(stderr);
+//             }
+//             else {
+//                 fputc('\a', stderr);
+//                 fflush(stderr);
+//             }
+//         }
+//         else if ((ch == '\b' || ch == 127) && n) /* BS/DEL */ {
+//             password[--n] = '\0';
+//             fputs("\b \b", stderr);
+//             fflush(stderr);
+//         }
+//         else if (ch == 3) /* CTRL+C */ {
+//             /* _getch() bypasses Ctrl+C but not Ctrl+Break detection! */
+//             fputs("^C\n", stderr);
+//             fflush(stderr);
+//             exit(-1);
+//         }
+//         else if (ch == 26) /* CTRL+Z */ {
+//             fputs("^Z\n", stderr);
+//             fflush(stderr);
+//             return NULL;
+//         }
+// 	else if (ch == 27) /* ESC */ {
+//             fputc('\n', stderr);
+//             fputs(prompt, stderr);
+//             fflush(stderr);
+//             n = 0;
+//         }
+//         else if ((n < sizeof(password) - 1) && !iscntrl(ch)) {
+//             password[n++] = ch;
+//             fputc(' ', stderr);
+//             fflush(stderr);
+//         }
+// 	else {
+//             fputc('\a', stderr);
+//             fflush(stderr);
+//         }
+//     }
 
-    return password;
-}
+//     fputc('\n', stderr);
+//     fflush(stderr);
+//     password[n] = '\0';
 
-#else
+//     return password;
+// }
 
-/* linux/hpux/solaris getpass() prototype lives here */
-#include <unistd.h>
+// #else
 
-#include <termios.h>
+// /* linux/hpux/solaris getpass() prototype lives here */
+// #include <unistd.h>
 
-/* from apr_getpass.c */
+// #include <termios.h>
 
-#if defined(SIGAR_HPUX)
-#   define getpass termios_getpass
-#elif defined(SIGAR_SOLARIS)
-#   define getpass getpassphrase
-#endif
+// /* from apr_getpass.c */
 
-#ifdef SIGAR_HPUX
-static char *termios_getpass(const char *prompt)
-{
-    struct termios attr;
-    static char password[MAX_STRING_LEN];
-    unsigned int n=0;
+// #if defined(SIGAR_HPUX)
+// #   define getpass termios_getpass
+// #elif defined(SIGAR_SOLARIS)
+// #   define getpass getpassphrase
+// #endif
 
-    fputs(prompt, stderr);
-    fflush(stderr);
-        
-    if (tcgetattr(STDIN_FILENO, &attr) != 0) {
-        return NULL;
-    }
+// #ifdef SIGAR_HPUX
+// static char *termios_getpass(const char *prompt)
+// {
+//     struct termios attr;
+//     static char password[MAX_STRING_LEN];
+//     unsigned int n=0;
 
-    attr.c_lflag &= ~(ECHO);
+//     fputs(prompt, stderr);
+//     fflush(stderr);
 
-    if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr) != 0) {
-        return NULL;
-    }
+//     if (tcgetattr(STDIN_FILENO, &attr) != 0) {
+//         return NULL;
+//     }
 
-    while ((password[n] = getchar()) != '\n') {
-        if (n < (sizeof(password) - 1) && 
-            (password[n] >= ' ') && 
-            (password[n] <= '~'))
-        {
-            n++;
-        }
-        else {
-            fprintf(stderr, "\n");
-            fputs(prompt, stderr);
-            fflush(stderr);
-            n = 0;
-        }
-    }
- 
-    password[n] = '\0';
-    printf("\n");
+//     attr.c_lflag &= ~(ECHO);
 
-    if (n > (MAX_STRING_LEN - 1)) {
-        password[MAX_STRING_LEN - 1] = '\0';
-    }
+//     if (tcsetattr(STDIN_FILENO, TCSAFLUSH, &attr) != 0) {
+//         return NULL;
+//     }
 
-    attr.c_lflag |= ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, &attr);
+//     while ((password[n] = getchar()) != '\n') {
+//         if (n < (sizeof(password) - 1) &&
+//             (password[n] >= ' ') &&
+//             (password[n] <= '~'))
+//         {
+//             n++;
+//         }
+//         else {
+//             fprintf(stderr, "\n");
+//             fputs(prompt, stderr);
+//             fflush(stderr);
+//             n = 0;
+//         }
+//     }
 
-    return (char *)&password;
-}
-#endif
+//     password[n] = '\0';
+//     printf("\n");
 
-SIGAR_DECLARE(char *) sigar_password_get(const char *prompt)
-{
-    char *buf = NULL;
+//     if (n > (MAX_STRING_LEN - 1)) {
+//         password[MAX_STRING_LEN - 1] = '\0';
+//     }
 
-    /* the linux version of getpass prints the prompt to the tty; ok.
-     * the solaris version prints the prompt to stderr; not ok.
-     * so print the prompt to /dev/tty ourselves if possible (always should be)
-     */
+//     attr.c_lflag |= ECHO;
+//     tcsetattr(STDIN_FILENO, TCSANOW, &attr);
 
-    FILE *tty = NULL;
+//     return (char *)&password;
+// }
+// #endif
 
-    if ((tty = fopen("/dev/tty", "w"))) {
-        fprintf(tty, "%s", prompt);
-        fflush(tty);
+// SIGAR_DECLARE(char *) sigar_password_get(const char *prompt)
+// {
+//     char *buf = NULL;
 
-        buf = getpass(tty ? "" : prompt);
-        fclose(tty);
-    }
+//     /* the linux version of getpass prints the prompt to the tty; ok.
+//      * the solaris version prints the prompt to stderr; not ok.
+//      * so print the prompt to /dev/tty ourselves if possible (always should be)
+//      */
 
-    return buf;
-}
+//     FILE *tty = NULL;
 
-#endif /* WIN32 */
+//     if ((tty = fopen("/dev/tty", "w"))) {
+//         fprintf(tty, "%s", prompt);
+//         fflush(tty);
+
+//         buf = getpass(tty ? "" : prompt);
+//         fclose(tty);
+//     }
+
+//     return buf;
+// }
+
+// #endif /* WIN32 */

@@ -6134,10 +6134,6 @@ extern "C" {
 extern "C" {
     pub fn sigar_rpc_strerror(err: ::std::os::raw::c_int) -> *mut ::std::os::raw::c_char;
 }
-extern "C" {
-    pub fn sigar_password_get(prompt: *const ::std::os::raw::c_char)
-        -> *mut ::std::os::raw::c_char;
-}
 ///< no file type determined
 pub const sigar_file_type_e_SIGAR_FILETYPE_NOFILE: sigar_file_type_e = 0;
 ///< a regular file
