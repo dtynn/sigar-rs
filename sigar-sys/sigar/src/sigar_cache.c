@@ -77,7 +77,7 @@ void sigar_cache_dump(sigar_cache_t *table)
         }
     }
     printf("\n");
-    fflush(stdout);
+    // fflush(stdout);
 }
 /*#endif*/
 
