@@ -41,15 +41,23 @@ impl Drop for SigarPtr {
 
 /// Strips ending zeros in the bytes
 pub fn strip_bytes(bytes: &[u8]) -> &[u8] {
-    let mut i = 0usize;
+    let mut len = bytes.len();
 
-    while i < bytes.len() {
-        if bytes[i] == 0 {
+    while len > 0 {
+        if bytes[len - 1] != 0 {
             break;
         }
 
-        i += 1;
+        len -= 1;
     }
 
-    &bytes[..i]
+    &bytes[..len]
+}
+
+pub(crate) fn u32_reverse(src: u32) -> u32 {
+    const MASK_U8: u32 = !(0u32) >> 24;
+    (src & MASK_U8) << 24
+        | (src >> 8 & MASK_U8) << 16
+        | (src >> 16 & MASK_U8) << 8
+        | (src >> 24 & MASK_U8)
 }

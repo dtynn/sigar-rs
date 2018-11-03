@@ -38,10 +38,52 @@ macro_rules! ffi_wrap {
 
         result
     }};
+
+    ($func:tt, $target:ident) => {{
+        let result: SigarResult<$target> = unsafe {
+            let sigar_ptr = SigarPtr::new()?;
+
+            let mut info: $target = Default::default();
+
+            let res = $func(
+                sigar_ptr.ptr,
+                &mut info,
+            );
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr.ptr, res));
+            }
+
+            Ok(info)
+        };
+
+        result
+    }};
 }
 
 macro_rules! ffi_wrap_destroy {
     ($fnget:ident, $fndestroy:ident, $target:ident, $trans:tt) => {
+        unsafe {
+            let sigar_ptr = SigarPtr::new()?;
+
+            let mut info: $target = Default::default();
+
+            let res = $fnget(sigar_ptr.ptr, &mut info);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr.ptr, res));
+            }
+
+            let entity = $trans(&info);
+
+            let res = $fndestroy(sigar_ptr.ptr, &mut info);
+            if res != SIGAR_CODE_OK {
+                return Err(Error::from_str("failed to destroy sigar"));
+            }
+
+            Ok(entity)
+        }
+    };
+
+    ($fnget:tt, $fndestroy:ident, $target:ident, $trans:tt) => {
         unsafe {
             let sigar_ptr = SigarPtr::new()?;
 
