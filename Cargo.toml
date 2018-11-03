@@ -4,6 +4,15 @@ version = "0.1.1"
 authors = ["dtynn <dtynn@163.com>"]
 build = "build.rs"
 
+description = "High level wrapper for sigar, on top of the crate sigar-sys."
+documentation = "https://docs.rs/sigar-rs"
+homepage = "https://github.com/dtynn/sigar-rs"
+repository = "https://github.com/dtynn/sigar-rs"
+readme = "README.md"
+keywords = ["sigar", "wrapper", "monitoring", "system"]
+license = "MIT"
+categories = ["api-bindings"]
+
 [workspace]
 members = ["sigar-sys"]
 
