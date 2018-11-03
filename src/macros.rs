@@ -38,6 +38,26 @@ macro_rules! ffi_wrap {
 
         result
     }};
+
+    ($func:tt, $target:ident) => {{
+        let result: SigarResult<$target> = unsafe {
+            let sigar_ptr = SigarPtr::new()?;
+
+            let mut info: $target = Default::default();
+
+            let res = $func(
+                sigar_ptr.ptr,
+                &mut info,
+            );
+            if res != SIGAR_CODE_OK {
+                return Err(Error::new(sigar_ptr.ptr, res));
+            }
+
+            Ok(info)
+        };
+
+        result
+    }};
 }
 
 macro_rules! ffi_wrap_destroy {

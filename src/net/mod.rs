@@ -6,6 +6,7 @@ use sigar_sys::*;
 use std::error::Error as stdError;
 use std::ffi::{CStr, CString};
 use std::net;
+use std::os::raw::{c_int, c_ulong};
 
 // C: sigar_net_info_get
 /// net info
@@ -286,55 +287,184 @@ pub fn interface_list() -> SigarResult<Vec<CString>> {
 // C: sigar_net_connection_list_get
 // C: sigar_net_connection_list_destroy
 #[derive(Debug)]
-pub struct Connection {
+pub struct Conn {
     pub local_port: u64,
     pub local_address: NetAddress,
     pub remote_port: u64,
     pub remote_address: NetAddress,
     pub uid: u32,
     pub inode: u64,
-    pub type_: i32,
-    pub state: i32,
+    pub type_: ConnType,
+    pub state: ConnSate,
     pub send_queue: u64,
     pub receive_queue: u64,
 }
 
-impl Connection {
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+pub enum ConnType {
+    TCP,
+    UDP,
+    RAW,
+    UNIX,
+    UNKNOWN,
+}
+
+impl ConnType {
+    fn from_raw(raw: c_int) -> Self {
+        match raw as u32 {
+            SIGAR_NETCONN_TCP => ConnType::TCP,
+            SIGAR_NETCONN_UDP => ConnType::UDP,
+            SIGAR_NETCONN_RAW => ConnType::RAW,
+            SIGAR_NETCONN_UNIX => ConnType::UNIX,
+            _ => ConnType::UNKNOWN,
+        }
+    }
+}
+
+#[allow(non_camel_case_types)]
+#[derive(Debug)]
+pub enum ConnSate {
+    TCP_ESTABLISHED,
+    TCP_SYN_SENT,
+    TCP_SYN_RECV,
+    TCP_FIN_WAIT1,
+    TCP_FIN_WAIT2,
+    TCP_TIME_WAIT,
+    TCP_CLOSE,
+    TCP_CLOSE_WAIT,
+    TCP_LAST_ACK,
+    TCP_LISTEN,
+    TCP_CLOSING,
+    TCP_IDLE,
+    TCP_BOUND,
+    TCP_UNKNOWN,
+}
+
+impl ConnSate {
+    fn from_raw(raw: c_int) -> Self {
+        match raw as u32 {
+            SIGAR_TCP_ESTABLISHED => ConnSate::TCP_ESTABLISHED,
+            SIGAR_TCP_SYN_SENT => ConnSate::TCP_SYN_SENT,
+            SIGAR_TCP_SYN_RECV => ConnSate::TCP_SYN_RECV,
+            SIGAR_TCP_FIN_WAIT1 => ConnSate::TCP_FIN_WAIT1,
+            SIGAR_TCP_FIN_WAIT2 => ConnSate::TCP_FIN_WAIT2,
+            SIGAR_TCP_TIME_WAIT => ConnSate::TCP_TIME_WAIT,
+            SIGAR_TCP_CLOSE => ConnSate::TCP_CLOSE,
+            SIGAR_TCP_CLOSE_WAIT => ConnSate::TCP_CLOSE_WAIT,
+            SIGAR_TCP_LAST_ACK => ConnSate::TCP_LAST_ACK,
+            SIGAR_TCP_LISTEN => ConnSate::TCP_LISTEN,
+            SIGAR_TCP_CLOSING => ConnSate::TCP_CLOSING,
+            SIGAR_TCP_IDLE => ConnSate::TCP_IDLE,
+            SIGAR_TCP_BOUND => ConnSate::TCP_BOUND,
+            SIGAR_TCP_UNKNOWN => ConnSate::TCP_UNKNOWN,
+            _ => ConnSate::TCP_UNKNOWN,
+        }
+    }
+}
+
+impl Conn {
     fn from_raw(raw: &sigar_net_connection_t) -> Self {
         value_convert!(
-            Connection,
+            Conn,
             raw,
             local_port,
             remote_port,
             uid,
             inode,
-            type_,
-            state,
             send_queue,
             receive_queue,
             (local_address: NetAddress::from_raw(&raw.local_address)),
             (remote_address: NetAddress::from_raw(&raw.remote_address)),
+            (state: ConnSate::from_raw(raw.state)),
+            (type_: ConnType::from_raw(raw.type_)),
         )
     }
 }
 
-/// Returns all connections
-pub fn connection_list(flags: i32) -> SigarResult<Vec<Connection>> {
+type Flag = u32;
+pub const FLAG_NETCONN_CLIENT: Flag = SIGAR_NETCONN_CLIENT;
+pub const FLAG_NETCONN_SERVER: Flag = SIGAR_NETCONN_SERVER;
+pub const FLAG_NETCONN_TCP: Flag = SIGAR_NETCONN_TCP;
+pub const FLAG_NETCONN_UDP: Flag = SIGAR_NETCONN_UDP;
+pub const FLAG_NETCONN_RAW: Flag = SIGAR_NETCONN_RAW;
+pub const FLAG_NETCONN_UNIX: Flag = SIGAR_NETCONN_UNIX;
+
+/// Returns all connections for given flags
+pub fn connection_list(flags: Flag) -> SigarResult<Vec<Conn>> {
     ffi_wrap_destroy!(
         (|ptr: *mut sigar_t, connlist: *mut sigar_net_connection_list_t| {
-            sigar_net_connection_list_get(ptr, connlist, flags as ::std::os::raw::c_int)
+            sigar_net_connection_list_get(ptr, connlist, flags as c_int)
         }),
         sigar_net_connection_list_destroy,
         sigar_net_connection_list_t,
         (|list_ptr: &sigar_net_connection_list_t| ffi_extract_list!(
             list_ptr,
-            (|one: &sigar_net_connection_t| Connection::from_raw(one))
+            (|one: &sigar_net_connection_t| Conn::from_raw(one))
         ))
     )
 }
+
 // C: sigar_net_stat_get
-// C: sigar_net_stat_port_get
+#[derive(Debug)]
+pub struct Stat {
+    pub tcp_states: [i32; 14usize],
+    pub tcp_inbound_total: u32,
+    pub tcp_outbound_total: u32,
+    pub all_inbound_total: u32,
+    pub all_outbound_total: u32,
+}
+
+impl Stat {
+    fn from_raw(raw: &sigar_net_stat_t) -> Self {
+        let mut tcp_states: [i32; 14usize] = [0; 14usize];
+        let mut i = 0usize;
+        while i < 14 {
+            tcp_states[i] = raw.tcp_states[i] as i32;
+            i += 1;
+        }
+
+        value_convert!(
+            Stat,
+            raw,
+            tcp_inbound_total,
+            tcp_outbound_total,
+            all_inbound_total,
+            all_outbound_total,
+            (tcp_states: tcp_states),
+        )
+    }
+}
+
+/// Returns connection stat summary for given flags
+pub fn stat_get(flags: Flag) -> SigarResult<Stat> {
+    let raw = ffi_wrap!(
+        (|sigar: *mut sigar_t, netstat: *mut sigar_net_stat_t| sigar_net_stat_get(
+            sigar,
+            netstat,
+            flags as c_int
+        )),
+        sigar_net_stat_t
+    )?;
+
+    Ok(Stat::from_raw(&raw))
+}
+
 // C: sigar_net_listen_address_get
+/// Returns the bind address for a given port
+pub fn listen_address_get(port: u64) -> SigarResult<NetAddress> {
+    let raw = ffi_wrap!(
+        sigar_net_listen_address_get,
+        (port as c_ulong),
+        sigar_net_address_t
+    )?;
+
+    Ok(NetAddress::from_raw(&raw))
+}
+
+// TODO:
+// C: sigar_net_connection_walk
+// C: sigar_net_stat_port_get
 // C: sigar_net_address_equals
 // C: sigar_net_address_to_string
 // C: sigar_net_scope_to_string
@@ -343,6 +473,3 @@ pub fn connection_list(flags: i32) -> SigarResult<Vec<Connection>> {
 // C: sigar_net_connection_state_get
 // C: sigar_net_interface_flags_to_string
 // C: sigar_net_services_name_get
-
-// TODO:
-// C: sigar_net_connection_walk
