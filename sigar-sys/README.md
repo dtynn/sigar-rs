@@ -1,4 +1,11 @@
 ### sigar-sys
+
+[![Crates.io](https://img.shields.io/crates/v/sigar-sys.svg)](https://crates.io/crates/sigar-sys)
+
+[![Docs](https://docs.rs/sigar-sys/badge.svg)](https://docs.rs/sigar-sys)
+
+
+
 low level binding to [AlexYaruki/sigar](https://github.com/AlexYaruki/sigar), which is a independent fork version of official [hyperic/sigar](https://github.com/hyperic/sigar).
 
 
@@ -105,4 +112,3 @@ unsafe fn pidlist() -> Result<Vec<ffi::sigar_pid_t>, String> {
 
 
 **to run the example code on windows, we should link 3 more libs: `ws2_32` `netapi32`, `version`, maybe in the build scripts**
-
