@@ -3,7 +3,11 @@
 
 [![Docs](https://docs.rs/sigar-rs/badge.svg)](https://docs.rs/sigar-rs)
 
-this is a high-level wrapper on top of [sigar-sys](https://github.com/dtynn/sigar-rs/tree/master/sigar-sys).
+[sigar](https://github.com/AlexYaruki/sigar) is a cross-platform system monitoring lib.
+
+this crate is a high-level wrapper on top of [sigar-sys](https://github.com/dtynn/sigar-rs/tree/master/sigar-sys).
+
+
 
 
 
@@ -21,11 +25,17 @@ and this to your crate root:
 extern crate sigar_rs;
 ```
 
-
 ### Examples
+
 see [examples](https://github.com/dtynn/sigar-rs/tree/master/examples).
 
 
 
+### Cross Platform
+
+some of the functions are not implemented on all platforms.
+the  `Error::NotImplementd` could be used to ident the missing methods.
+
 ### Contributing
+
 PRs and issues are welcomed.
