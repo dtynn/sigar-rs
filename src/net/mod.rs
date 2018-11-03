@@ -199,7 +199,7 @@ impl InterfaceConfig {
 
 /// Returns interface config for given name
 pub fn interface_config(name: &str) -> SigarResult<InterfaceConfig> {
-    let name_ptr = CString::new(name).map_err(|e| Error::from_str(e.description()))?;
+    let name_ptr = CString::new(name).map_err(|e| Error::CString(e.description().to_string()))?;
     let raw = ffi_wrap!(
         sigar_net_interface_config_get,
         (name_ptr.as_ptr()),
@@ -241,7 +241,7 @@ pub struct InterfaceStat {
 
 /// Returns interface stat for give name
 pub fn interface_stat(name: &str) -> SigarResult<InterfaceStat> {
-    let name_ptr = CString::new(name).map_err(|e| Error::from_str(e.description()))?;
+    let name_ptr = CString::new(name).map_err(|e| Error::CString(e.description().to_string()))?;
 
     let raw = ffi_wrap!(
         sigar_net_interface_stat_get,
