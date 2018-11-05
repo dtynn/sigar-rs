@@ -16,7 +16,7 @@ this crate is a high-level wrapper on top of [sigar-sys](https://github.com/dtyn
 Add this to your `Cargo.toml`
 ```toml
 [dependencies]
-sigar-rs = "0.1"
+sigar-rs = "0.2"
 ```
 
 and this to your crate root:
